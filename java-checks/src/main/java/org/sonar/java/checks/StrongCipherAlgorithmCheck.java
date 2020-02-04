@@ -26,15 +26,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.sonar.check.Rule;
+import org.sonar.java.checks.helpers.ExpressionsHelper;
 import org.sonar.java.checks.helpers.JavaPropertiesHelper;
 import org.sonar.java.checks.methods.AbstractMethodDetection;
 import org.sonar.java.matcher.MethodMatcher;
-import org.sonar.java.model.LiteralUtils;
 import org.sonar.plugins.java.api.tree.ExpressionTree;
-import org.sonar.plugins.java.api.tree.LiteralTree;
 import org.sonar.plugins.java.api.tree.MethodInvocationTree;
 import org.sonar.plugins.java.api.tree.NewClassTree;
-import org.sonar.plugins.java.api.tree.Tree;
 
 @Rule(key = "S5547")
 public class StrongCipherAlgorithmCheck extends AbstractMethodDetection {
@@ -59,19 +57,15 @@ public class StrongCipherAlgorithmCheck extends AbstractMethodDetection {
   @Override
   protected void onMethodInvocationFound(MethodInvocationTree mit) {
     ExpressionTree firstArg = mit.arguments().get(0);
-    ExpressionTree value = getValueOrPropertyDefaultValue(firstArg);
-    if (value.is(Tree.Kind.STRING_LITERAL)) {
-      checkIssue(firstArg, (LiteralTree) value);
+    ExpressionTree defaultValue = JavaPropertiesHelper.retrievedPropertyDefaultValue(firstArg);
+    String firstArgStringValue = ExpressionsHelper.getConstantValueAsString(defaultValue != null ? defaultValue : firstArg).value();
+    if (firstArgStringValue != null) {
+      checkIssue(firstArg, firstArgStringValue);
     }
   }
 
-  private static ExpressionTree getValueOrPropertyDefaultValue(ExpressionTree expression) {
-    ExpressionTree defaultValue = JavaPropertiesHelper.retrievedPropertyDefaultValue(expression);
-    return defaultValue != null ? defaultValue : expression;
-  }
-
-  private void checkIssue(ExpressionTree argumentForReport, LiteralTree argument) {
-    String[] transformationElements = LiteralUtils.trimQuotes(argument.value()).split("/");
+  private void checkIssue(ExpressionTree argumentForReport, String algorithm) {
+    String[] transformationElements = algorithm.split("/");
     if (transformationElements.length > 0 && VULNERABLE_ALGORITHMS.contains(transformationElements[0].toUpperCase(Locale.ROOT))) {
       reportIssue(argumentForReport, MESSAGE);
     }
