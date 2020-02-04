@@ -33,9 +33,12 @@ import org.sonar.plugins.java.api.tree.MethodTree;
 import org.sonar.plugins.java.api.tree.NewClassTree;
 import org.sonar.plugins.java.api.tree.ThrowStatementTree;
 import org.sonar.plugins.java.api.tree.Tree;
+import org.sonarsource.analyzer.commons.annotations.DeprecatedRuleKey;
 
-@Rule(key = "S4424")
-public class TrustManagerCertificateCheck extends IssuableSubscriptionVisitor {
+@DeprecatedRuleKey(ruleKey = "S4424", repositoryKey = "squid")
+@DeprecatedRuleKey(ruleKey = "S4424", repositoryKey = "java")
+@Rule(key = "S4830")
+public class ServerCertificatesCheck extends IssuableSubscriptionVisitor {
 
   private static final MethodMatcher CHECK_TRUSTED_MATCHER = MethodMatcher.create()
     .typeDefinition(TypeCriteria.subtypeOf("javax.net.ssl.X509TrustManager"))
