@@ -68,7 +68,7 @@ public class ServerCertificatesCheck extends IssuableSubscriptionVisitor {
     }
     if ((CHECK_CLIENT_TRUSTED_MATCHER.matches(methodTree) || CHECK_SERVER_TRUSTED_MATCHER.matches(methodTree)) &&
       !ThrowExceptionVisitor.throwsException(blockTree)) {
-      reportIssue(methodTree.simpleName(), "Change this method so it throws exceptions.");
+      reportIssue(methodTree.simpleName(), "Enable server certificate validation on this SSL/TLS connection.");
     }
   }
 
